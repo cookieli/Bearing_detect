@@ -71,24 +71,24 @@ biases = {
 #Building the encoder
 def encoder(x, train = False):
     x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
-    layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x_norm, weights['encoder_h1']),
+    layer_1 = tf.tanh(tf.add(tf.matmul(x_norm, weights['encoder_h1']),
                                    biases['encoder_b1']))
     layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True, training = train)
-    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1_norm, weights['encoder_h2']),
+    layer_2 = tf.tanh(tf.add(tf.matmul(layer_1_norm, weights['encoder_h2']),
                                    biases['encoder_b2']))
     layer_2_norm = tf.layers.batch_normalization(layer_2, center = True, scale = True, training = train)
-    layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2_norm, weights['encoder_h3']),
+    layer_3 = tf.tanh(tf.add(tf.matmul(layer_2_norm, weights['encoder_h3']),
                                    biases['encoder_b3']))
     return layer_3
 def decoder(x, train = False):
     x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
-    layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['decoder_h1']),
+    layer_1 = tf.tanh(tf.add(tf.matmul(x, weights['decoder_h1']),
                                    biases['decoder_b1']))
     layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True, training = train)
-    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1_norm, weights['decoder_h2']),
+    layer_2 = tf.tanh(tf.add(tf.matmul(layer_1_norm, weights['decoder_h2']),
                                    biases['decoder_b2']))
     layer_2_norm = tf.layers.batch_normalization(layer_2, center = True, scale = True, training = train)
-    layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2_norm, weights['decoder_h3']),
+    layer_3 = tf.tanh(tf.add(tf.matmul(layer_2_norm, weights['decoder_h3']),
                                    biases['decoder_b3']))
     return layer_3
 
@@ -126,7 +126,7 @@ def run_autoencoder(session, loss_val, Xd, predict,
 
         feed_dict = {X: Xd[idx, :], is_training: training is not None}
         actual_batch_size = Xd[idx].shape[0]
-        loss, corr, _  = session.run(variables, feed_dict = feed_dict)
+        loss, corr, _, _ = session.run(variables, feed_dict = feed_dict)
         losses.append(loss * actual_batch_size)
         correct += np.sum(corr)
 

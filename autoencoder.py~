@@ -25,6 +25,7 @@ num_hidden_3 = 128
 num_input = 1200
 
 X = tf.placeholder("float", [None, num_input])
+is_training = tf.placeholder(tf.bool)
 
 weights = {
     'encoder_h1': tf.get_variable("encoder_h1",
@@ -68,20 +69,26 @@ biases = {
 }
 
 #Building the encoder
-def encoder(x):
-    layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['encoder_h1']),
+def encoder(x, train = False):
+    x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
+    layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x_norm, weights['encoder_h1']),
                                    biases['encoder_b1']))
-    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, weights['encoder_h2']),
+    layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True, training = train)
+    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1_norm, weights['encoder_h2']),
                                    biases['encoder_b2']))
-    layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2, weights['encoder_h3']),
+    layer_2_norm = tf.layers.batch_normalization(layer_2, center = True, scale = True, training = train)
+    layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2_norm, weights['encoder_h3']),
                                    biases['encoder_b3']))
     return layer_3
-def decoder(x):
+def decoder(x, train = False):
+    x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
     layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['decoder_h1']),
                                    biases['decoder_b1']))
-    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, weights['decoder_h2']),
+    layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True, training = train)
+    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1_norm, weights['decoder_h2']),
                                    biases['decoder_b2']))
-    layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2, weights['decoder_h3']),
+    layer_2_norm = tf.layers.batch_normalization(layer_2, center = True, scale = True, training = train)
+    layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2_norm, weights['decoder_h3']),
                                    biases['decoder_b3']))
     return layer_3
 
@@ -89,12 +96,12 @@ def decoder(x):
 #decoder_op = decoder(encoder_op)
 #y_pred = decoder_op
 #y_true = X
-def autoencoder(x):
-    encoder_op = encoder(x)
-    decoder_op = decoder(encoder_op)
+def autoencoder(x, train = False):
+    encoder_op = encoder(x,train)
+    decoder_op = decoder(encoder_op,train)
     return decoder_op, encoder_op
 y_true = X
-y_pred, features = autoencoder(X)
+y_pred, features = autoencoder(X, is_training)
 loss = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
 optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
 
@@ -103,12 +110,12 @@ def run_autoencoder(session, loss_val, Xd, predict,
                     training = None, plot_losses = False):
     correct_prediction = tf.equal(y_true, y_pred)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
     train_indices = np.arange(Xd.shape[0])
     np.random.shuffle(train_indices)
 
-    variables = [loss_val, correct_prediction, training]
-
+    variables = [loss_val, correct_prediction, training, extra_update_ops]
     
     iter_cnt = 0
     correct = 0
@@ -117,7 +124,7 @@ def run_autoencoder(session, loss_val, Xd, predict,
         start_idx = (i * batch_size)%Xd.shape[0]
         idx = train_indices[start_idx: start_idx + batch_size]
 
-        feed_dict = {X: Xd[idx, :]}
+        feed_dict = {X: Xd[idx, :], is_training: training is not None}
         actual_batch_size = Xd[idx].shape[0]
         loss, corr, _  = session.run(variables, feed_dict = feed_dict)
         losses.append(loss * actual_batch_size)
