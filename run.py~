@@ -1,0 +1,17 @@
+from __future__ import division, print_function, absolute_import
+
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+import autoencoder as ae
+import classification as cf
+
+init = tf.global_variables_initializer()
+saver = tf.train.Saver()
+train_data = ae.mnist.train.images
+with tf.Session() as sess:
+    sess.run(init)
+    print("Pretrain:")
+    ae.run_autoencoder(sess, ae.loss, train_data, ae.y_pred, 30000, 256, 1000, ae.optimizer, False)
+    print("train:")
+    cf.run_model(sess, cf.out, cf.loss, cf.train_data, cf.train_labels, 10, 256, 100, cf.train_step, False)
