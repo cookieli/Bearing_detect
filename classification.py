@@ -1,5 +1,5 @@
 from __future__ import division, print_function, absolute_import
-from autoencoder import mnist, num_hidden_1, num_hidden_2,num_hidden3, num_input,features, encoder, weights
+from autoencoder import mnist, num_hidden_1, num_hidden_2, num_hidden_3, num_input,features, encoder, weights
 import tensorflow as tf
 import numpy as np
 import math
