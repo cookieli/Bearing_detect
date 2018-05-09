@@ -29,7 +29,7 @@ train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
 eval_data = mnist.test.images
 eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
 
-def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8
+def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8,
               epochs=1, batch_size=256, print_every = 100,
               training = None, plot_losses=False):
     correct_prediction = tf.equal(tf.argmax(predict, 1),tf.argmax(y,1))

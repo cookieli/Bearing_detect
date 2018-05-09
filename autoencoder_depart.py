@@ -37,13 +37,12 @@ def encoder(x, kernel_shape, bias_shape, train = False):
     return out
 
 def Encoder(x, layer_name, train = False, need_reuse = True):
-    with tf.variable_scope(layer_name):
-        if need_reuse:
-            scope.reuse_variables()
-        return encoder(x,
-                       layer_shape[layer_name]['encoder']['weights'],
-                       layer_shape[layer_name]['encoder']['bias'],
-                       train)
+    with tf.variable_scope(layer_name, reuse = tf.AUTO_REUSE):
+        with tf.variable_scope('Encoder'):
+            return encoder(x,
+                           layer_shape[layer_name]['encoder']['weights'],
+                           layer_shape[layer_name]['encoder']['bias'],
+                           train)
 
 def decoder(x, kernel_shape, bias_shape, train = False):
     weights = tf.get_variable("weights", kernel_shape,
@@ -54,13 +53,12 @@ def decoder(x, kernel_shape, bias_shape, train = False):
                          bias))
     return out
 def Decoder(x, layer_name, train = False, need_reuse = True):
-    with tf.variable_scope(layer_name):
-        if need_reuse:
-            scope.reuse_variables()
-        return decoder(x,
-                       layer_shape[layer_name]['decoder']['weights'],
-                       layer_shape[layer_name]['decoder']['bias'],
-                       train)
+    with tf.variable_scope(layer_name, reuse = tf.AUTO_REUSE):
+        with tf.variable_scope('Decoder'):
+            return decoder(x,
+                           layer_shape[layer_name]['decoder']['weights'],
+                           layer_shape[layer_name]['decoder']['bias'],
+                           train)
 
 def autoencoder(x, layer_name, e_kernel_shape, e_bias_shape, d_kernel_shape, d_bias_shape, train = False):
     x_norm = tf.layers_batch_normalization(x, center = True, scale = True, training = train)
@@ -83,8 +81,11 @@ def layer_para(x, layer_name, train = False):
     y_true = dic['y_true']
     dic['y_pred'] = Autoencoder(x, layer_name, train)
     y_pred = dic['y_pred']
-    dic['loss'] = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
-    dic['optimizer'] = tf.train.RMSProbOptimizer(learning_rate).minimize(loss)
+    with tf.variable_scope(layer_name, reuse = tf.AUTO_REUSE):
+        with tf.variable_scope('layer_para'):
+            dic['loss'] = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
+            loss = dic['loss']
+            dic['optimizer'] = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
     return dic
 
 layer_1_para = layer_para(X, scope_name[0], is_training)
