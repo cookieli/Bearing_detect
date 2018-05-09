@@ -37,9 +37,7 @@ def encoder(x, kernel_shape, bias_shape, train = False):
     return out
 
 def Encoder(x, layer_name, train = False, need_reuse = True):
-    with tf.variable_scope(layer_name):
-        if need_reuse:
-            scope.reuse_variables()
+    with tf.variable_scope('Encoder' + layer_name, reuse = tf.AUTO_REUSE) as scope:
         return encoder(x,
                        layer_shape[layer_name]['encoder']['weights'],
                        layer_shape[layer_name]['encoder']['bias'],
@@ -54,9 +52,7 @@ def decoder(x, kernel_shape, bias_shape, train = False):
                          bias))
     return out
 def Decoder(x, layer_name, train = False, need_reuse = True):
-    with tf.variable_scope(layer_name):
-        if need_reuse:
-            scope.reuse_variables()
+    with tf.variable_scope('Decoder' + layer_name, reuse = tf.AUTO_REUSE) as scope:
         return decoder(x,
                        layer_shape[layer_name]['decoder']['weights'],
                        layer_shape[layer_name]['decoder']['bias'],
@@ -84,7 +80,8 @@ def layer_para(x, layer_name, train = False):
     dic['y_pred'] = Autoencoder(x, layer_name, train)
     y_pred = dic['y_pred']
     dic['loss'] = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
-    dic['optimizer'] = tf.train.RMSProbOptimizer(learning_rate).minimize(loss)
+    loss = dic['loss']
+    dic['optimizer'] = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
     return dic
 
 layer_1_para = layer_para(X, scope_name[0], is_training)
