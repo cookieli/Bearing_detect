@@ -24,9 +24,9 @@ num_hidden_2 = 256
 num_hidden_3 = 128
 num_input = 784
 
-X = tf.placeholder(dtype = tf.float32, shape = [None, num_input], name = "auto")
-is_training = tf.placeholder(tf.bool)
-drop_out_prob = tf.placeholder(tf.float32)
+#X = tf.placeholder(dtype = tf.float32, shape = [None, num_input], name = "auto")
+#is_training = tf.placeholder(tf.bool)
+#drop_out_prob = tf.placeholder(tf.float32)
 weights = {
     'encoder_h1': tf.get_variable("encoder_h1",
                                   shape = [num_input, num_hidden_1],

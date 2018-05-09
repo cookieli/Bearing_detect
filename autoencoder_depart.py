@@ -4,8 +4,8 @@ import tensorflow as tf
 import numpy as np
 import autoencoder as ae
 
-X = tf.placeholder(dtype = tf.float32, shape =[None, ae.num_input])
-is_training = tf.placeholder(tf.bool)
+#X = tf.placeholder(dtype = tf.float32, shape =[None, ae.num_input])
+#is_training = tf.placeholder(tf.bool)
 learning_rate = 0.01
 
 layer_shape = {

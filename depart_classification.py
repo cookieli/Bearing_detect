@@ -6,9 +6,9 @@ from autoencoder_depart import Encoder, scope_name
 W1 = tf.get_variable('W1', shape = [num_hidden_3, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer(stddev = 0.1))
 b1 = tf.get_variable('b1', shape = [num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
 
-X = tf.placeholder(tf.float32, [None, num_input], "dcf")
-drop_out_prob = tf.placeholder(tf.float32)
-training_now = tf.placeholder(tf.bool)
+#X = tf.placeholder(tf.float32, [None, num_input], "dcf")
+#drop_out_prob = tf.placeholder(tf.float32)
+#training_now = tf.placeholder(tf.bool)
 
 
 def classification_model(x, drop_out_prob = 1.0, train = False):
