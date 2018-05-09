@@ -22,9 +22,9 @@ examples_to_show = 10
 num_hidden_1 = 512
 num_hidden_2 = 256
 num_hidden_3 = 128
-num_input = 1200
+num_input = 784
 
-X = tf.placeholder("float", [None, num_input])
+X = tf.placeholder(dtype = tf.float32, shape = [None, num_input], name = "auto")
 is_training = tf.placeholder(tf.bool)
 drop_out_prob = tf.placeholder(tf.float32)
 weights = {

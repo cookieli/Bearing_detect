@@ -5,7 +5,7 @@ import numpy as np
 import math
 num_classes = 10
 learning_rate = 0.01
-X = tf.placeholder(tf.float32, [None, num_input])
+X = tf.placeholder(tf.float32, [None, num_input], "ca")
 drop_out_prob = tf.placeholder(tf.float32)
 y = tf.placeholder(tf.int64, [None, num_classes])
 W1 = tf.get_variable('W1', shape = [num_hidden_1, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
@@ -37,7 +37,7 @@ def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8,
 
     #shuffle indices
     train_indices = np.arange(Xd.shape[0])
-    np.random.shuffle(train_indices)emacs
+    np.random.shuffle(train_indices)
 
     training_now = training is not None
 

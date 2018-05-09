@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 import autoencoder as ae
 
-X = tf.placeholder("float", [None, ae.num_input])
+X = tf.placeholder(dtype = tf.float32, shape =[None, ae.num_input])
 is_training = tf.placeholder(tf.bool)
 learning_rate = 0.01
 
@@ -88,9 +88,9 @@ def layer_para(x, layer_name, train = False):
             dic['optimizer'] = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
     return dic
 
-layer_1_para = layer_para(X, scope_name[0], is_training)
+#layer_1_para = layer_para(X, scope_name[0], is_training)
 
-layer_2_para = layer_para(x = Encoder(X, scope_name[0], False, True), layer_name = scope_name[1], train = is_training)
+#layer_2_para = layer_para(x = Encoder(X, scope_name[0], False, True), layer_name = scope_name[1], train = is_training)
 
-layer_3_para = layer_para(x = Encoder(X, scope_name[1], False, True), layer_name = scope_name[2], train = is_training)
+#layer_3_para = layer_para(x = Encoder(X, scope_name[1], False, True), layer_name = scope_name[2], train = is_training)
 

@@ -31,7 +31,7 @@ class Bearing_dataset:
                        7:'Ball_0.028',
                        8:'Outer_Race_0.007',
                        9:'Outer_Race_0.021'}
-   
+  
         self.data_with_labels = self._match_label_data()
         self.data_label_lst = self._construct_list()
         random.shuffle(self.data_label_lst)
@@ -50,7 +50,7 @@ class Bearing_dataset:
                 if key.endswith('DE_time'):
                     dic[n] = dic[n].get(key)
                     dic[n] = np.transpose(self._truncate(dic[n]))
-                    np.shuffle(dic[n])
+                    np.random.shuffle(dic[n])
                     dic[n] = np.split(dic[n], 100, axis = 1)
                    # for elem in dic[n]:
                     #    elem = np.transpose(elem)
