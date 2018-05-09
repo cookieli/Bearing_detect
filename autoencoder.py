@@ -37,13 +37,13 @@ weights = {
     'encoder_h3': tf.get_variable("encoder_h3",
                                   shape = [num_hidden_2, num_hidden_3],
                                   initializer = tf.random_normal_initializer(stddev = 0.1)),
-    'decoder_h1': tf.get_variable("decoder_h1",
+    'decoder_h3': tf.get_variable("decoder_h1",
                                   shape = [num_hidden_3, num_hidden_2],
                                   initializer = tf.random_normal_initializer(stddev = 0.1)),
     'decoder_h2': tf.get_variable("decoder_h2",
                                   shape = [num_hidden_2, num_hidden_1],
                                   initializer = tf.random_normal_initializer(stddev = 0.1)),
-    'decoder_h3': tf.get_variable("decoder_h3",
+    'decoder_h1': tf.get_variable("decoder_h3",
                                   shape = [num_hidden_1, num_input],
                                   initializer = tf.random_normal_initializer(stddev = 0.1))
 }
@@ -57,13 +57,13 @@ biases = {
     'encoder_b3': tf.get_variable("encoder_b3",
                                   shape = [num_hidden_3],
                                   initializer = tf.random_normal_initializer),
-    'decoder_b1': tf.get_variable("decoder_b1",
+    'decoder_b3': tf.get_variable("decoder_b1",
                                   shape = [num_hidden_2],
                                   initializer = tf.random_normal_initializer),
     'decoder_b2': tf.get_variable("decoder_b2",
                                   shape = [num_hidden_1],
                                   initializer = tf.random_normal_initializer),
-    'decoder_b3': tf.get_variable("decoder_b3",
+    'decoder_b1': tf.get_variable("decoder_b3",
                                   shape = [num_input],
                                   initializer = tf.random_normal_initializer)
 }

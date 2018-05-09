@@ -6,19 +6,20 @@ import math
 num_classes = 10
 learning_rate = 0.01
 X = tf.placeholder(tf.float32, [None, num_input])
+drop_out_prob = tf.placeholder(tf.float32)
 y = tf.placeholder(tf.int64, [None, num_classes])
 W1 = tf.get_variable('W1', shape = [num_hidden_3, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
 b1 = tf.get_variable("b1", shape = [num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
-def classification_model(X):
-    layer1 = encoder(X)
-    layer_1_norm = tf.layers.batch_normalization(X, center = True, scale = True)
-    scores = tf.add(tf.matmul(layer1, W1), b1)
+def classification_model(X, drop_out_prob = 0.8):
+    layer_1 = encoder(X,drop_prob = drop_out_prob)
+    layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True)
+    scores = tf.add(tf.matmul(layer_1_norm, W1), b1)
     prediction = tf.nn.softmax(scores)
     return prediction
 
-out = classification_model(X)
+out = classification_model(X, drop_out_prob)
 
-loss = tf.reduce_mean(-tf.reduce_sum(tf.cast(y,tf.float32)*tf.log(out),axis = 1))
+loss = tf.reduce_mean(-tf.reduce_sum(tf.cast(y,tf.float32)*tf.log(out),axis = 1)) + 0.4 * tf.reduce_sum(tf.multiply(W1, W1))
 optimizer = tf.train.AdamOptimizer(5e-4)
 train_step = optimizer.minimize(loss)
 
@@ -28,7 +29,7 @@ train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
 eval_data = mnist.test.images
 eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
 
-def run_model(session, predict, loss_val, Xd, yd,
+def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8
               epochs=1, batch_size=256, print_every = 100,
               training = None, plot_losses=False):
     correct_prediction = tf.equal(tf.argmax(predict, 1),tf.argmax(y,1))
@@ -57,6 +58,7 @@ def run_model(session, predict, loss_val, Xd, yd,
             feed_dict = {
                 X:Xd[idx, :],
                 y:yd[idx],
+                drop_out_prob: drop_prob
             }
             actual_batch_size = yd[idx].shape[0]
             loss, corr, _ = session.run(variables, feed_dict=feed_dict)

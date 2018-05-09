@@ -8,7 +8,7 @@ learning_rate = 0.01
 X = tf.placeholder(tf.float32, [None, num_input])
 drop_out_prob = tf.placeholder(tf.float32)
 y = tf.placeholder(tf.int64, [None, num_classes])
-W1 = tf.get_variable('W1', shape = [num_hidden_3, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
+W1 = tf.get_variable('W1', shape = [num_hidden_1, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
 b1 = tf.get_variable("b1", shape = [num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
 def classification_model(X, drop_out_prob = 0.8):
     layer_1 = encoder(X,drop_prob = drop_out_prob)
