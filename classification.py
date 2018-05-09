@@ -37,7 +37,7 @@ def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8
 
     #shuffle indices
     train_indices = np.arange(Xd.shape[0])
-    np.random.shuffle(train_indices)
+    np.random.shuffle(train_indices)emacs
 
     training_now = training is not None
 
