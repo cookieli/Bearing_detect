@@ -26,26 +26,26 @@ num_input = 1200
 
 X = tf.placeholder("float", [None, num_input])
 is_training = tf.placeholder(tf.bool)
-
+drop_out_prob = tf.placeholder(tf.float32)
 weights = {
     'encoder_h1': tf.get_variable("encoder_h1",
                                   shape = [num_input, num_hidden_1],
-                                  initializer = tf.random_normal_initializer),
+                                  initializer = tf.random_normal_initializer(stddev = 0.1)),
     'encoder_h2': tf.get_variable("encoder_h2",
                                   shape = [num_hidden_1, num_hidden_2],
-                                  initializer = tf.random_normal_initializer),
+                                  initializer = tf.random_normal_initializer(stddev = 0.1)),
     'encoder_h3': tf.get_variable("encoder_h3",
                                   shape = [num_hidden_2, num_hidden_3],
-                                  initializer = tf.random_normal_initializer),
+                                  initializer = tf.random_normal_initializer(stddev = 0.1)),
     'decoder_h1': tf.get_variable("decoder_h1",
                                   shape = [num_hidden_3, num_hidden_2],
-                                  initializer = tf.random_normal_initializer),
+                                  initializer = tf.random_normal_initializer(stddev = 0.1)),
     'decoder_h2': tf.get_variable("decoder_h2",
                                   shape = [num_hidden_2, num_hidden_1],
-                                  initializer = tf.random_normal_initializer),
+                                  initializer = tf.random_normal_initializer(stddev = 0.1)),
     'decoder_h3': tf.get_variable("decoder_h3",
                                   shape = [num_hidden_1, num_input],
-                                  initializer = tf.random_normal_initializer)
+                                  initializer = tf.random_normal_initializer(stddev = 0.1))
 }
 biases = {
     'encoder_b1': tf.get_variable("encoder_b1",
@@ -69,26 +69,32 @@ biases = {
 }
 
 #Building the encoder
-def encoder(x, train = False):
+def encoder(x, train = False, drop_prob = 0.4):
     x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
-    layer_1 = tf.tanh(tf.add(tf.matmul(x_norm, weights['encoder_h1']),
+    x_drop = tf.nn.dropout(x_norm, keep_prob = drop_prob)
+    layer_1 = tf.tanh(tf.add(tf.matmul(x_drop, weights['encoder_h1']),
                                    biases['encoder_b1']))
     layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True, training = train)
-    layer_2 = tf.tanh(tf.add(tf.matmul(layer_1_norm, weights['encoder_h2']),
+    layer_1_drop = tf.nn.dropout(layer_1_norm, keep_prob = drop_prob)
+    layer_2 = tf.tanh(tf.add(tf.matmul(layer_1_drop, weights['encoder_h2']),
                                    biases['encoder_b2']))
     layer_2_norm = tf.layers.batch_normalization(layer_2, center = True, scale = True, training = train)
-    layer_3 = tf.tanh(tf.add(tf.matmul(layer_2_norm, weights['encoder_h3']),
+    layer_2_drop = tf.nn.dropout(layer_2_norm, keep_prob = drop_prob)
+    layer_3 = tf.tanh(tf.add(tf.matmul(layer_2_drop, weights['encoder_h3']),
                                    biases['encoder_b3']))
     return layer_3
-def decoder(x, train = False):
+def decoder(x, train = False, drop_prob = 0.4):
     x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
-    layer_1 = tf.tanh(tf.add(tf.matmul(x, weights['decoder_h1']),
+    x_drop = tf.nn.dropout(x_norm, keep_prob = drop_prob)
+    layer_1 = tf.tanh(tf.add(tf.matmul(x_drop, weights['decoder_h1']),
                                    biases['decoder_b1']))
     layer_1_norm = tf.layers.batch_normalization(layer_1, center = True, scale = True, training = train)
-    layer_2 = tf.tanh(tf.add(tf.matmul(layer_1_norm, weights['decoder_h2']),
+    layer_1_drop = tf.nn.dropout(layer_1_norm, keep_prob = drop_prob)
+    layer_2 = tf.tanh(tf.add(tf.matmul(layer_1_drop, weights['decoder_h2']),
                                    biases['decoder_b2']))
     layer_2_norm = tf.layers.batch_normalization(layer_2, center = True, scale = True, training = train)
-    layer_3 = tf.tanh(tf.add(tf.matmul(layer_2_norm, weights['decoder_h3']),
+    layer_2_drop = tf.nn.dropout(layer_2_norm, keep_prob = drop_prob)
+    layer_3 = tf.tanh(tf.add(tf.matmul(layer_2_drop, weights['decoder_h3']),
                                    biases['decoder_b3']))
     return layer_3
 
@@ -96,17 +102,17 @@ def decoder(x, train = False):
 #decoder_op = decoder(encoder_op)
 #y_pred = decoder_op
 #y_true = X
-def autoencoder(x, train = False):
-    encoder_op = encoder(x,train)
-    decoder_op = decoder(encoder_op,train)
+def autoencoder(x, train = False, drop_prob = 0.4):
+    encoder_op = encoder(x,train, drop_prob)
+    decoder_op = decoder(encoder_op,train, drop_prob)
     return decoder_op, encoder_op
 y_true = X
-y_pred, features = autoencoder(X, is_training)
+y_pred, features = autoencoder(X, is_training, drop_out_prob)
 loss = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
 optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
 
-def run_autoencoder(session, loss_val, Xd, predict,
-                    num_steps = 30000, batch_size=256, print_every = 100,
+def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4,
+                    num_steps = 40, batch_size=256, print_every = 100,
                     training = None, plot_losses = False):
     correct_prediction = tf.equal(y_true, y_pred)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -116,7 +122,7 @@ def run_autoencoder(session, loss_val, Xd, predict,
     np.random.shuffle(train_indices)
 
     variables = [loss_val, correct_prediction, training, extra_update_ops]
-    
+   
     iter_cnt = 0
     correct = 0
     losses = []
@@ -124,7 +130,7 @@ def run_autoencoder(session, loss_val, Xd, predict,
         start_idx = (i * batch_size)%Xd.shape[0]
         idx = train_indices[start_idx: start_idx + batch_size]
 
-        feed_dict = {X: Xd[idx, :], is_training: training is not None}
+        feed_dict = {X: Xd[idx, :], is_training: training is not None, drop_out_prob:drop_prob}
         actual_batch_size = Xd[idx].shape[0]
         loss, corr, _, _ = session.run(variables, feed_dict = feed_dict)
         losses.append(loss * actual_batch_size)

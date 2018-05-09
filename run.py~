@@ -19,8 +19,8 @@ eval_data = Bearing_dataset.eval_data
 with tf.Session() as sess:
     sess.run(init)
     print("Pretrain:")
-    ae.run_autoencoder(sess, ae.loss, train_data, ae.y_pred, 30000, 256, 1000, ae.optimizer, False)
+    ae.run_autoencoder(sess, ae.loss, train_data, ae.y_pred, 0.4,30000, 256, 1000, ae.optimizer, False)
     print("train:")
-    cf.run_model(sess, cf.out, cf.loss, train_data, train_labels.eval(), 20, 256, 100, cf.train_step, False)
+    cf.run_model(sess, cf.out, cf.loss, train_data, train_labels.eval(), 0.8, 20, 256, 100, cf.train_step, False)
     print("test:")
-    cf.run_model(sess, cf.out, cf.loss, eval_data, eval_labels.eval(), 1, 256)
+    cf.run_model(sess, cf.out, cf.loss, eval_data, eval_labels.eval(), 1, 1, 256)

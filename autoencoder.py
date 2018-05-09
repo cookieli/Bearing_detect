@@ -111,10 +111,10 @@ y_pred, features = autoencoder(X, is_training, drop_out_prob)
 loss = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
 optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
 
-def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4
+def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4,
                     num_steps = 40, batch_size=256, print_every = 100,
                     training = None, plot_losses = False):
-    correct_prediction = tf.equal(y_true, y_pred)
+    correct_prediction = y_true - y_pred
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
@@ -130,7 +130,7 @@ def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4
         start_idx = (i * batch_size)%Xd.shape[0]
         idx = train_indices[start_idx: start_idx + batch_size]
 
-        feed_dict = {X: Xd[idx, :], is_training: training is not None, drop_out_prob:drop_prob}
+        feed_dict = {X: Xd[idx, :], is_training: training is not None}
         actual_batch_size = Xd[idx].shape[0]
         loss, corr, _, _ = session.run(variables, feed_dict = feed_dict)
         losses.append(loss * actual_batch_size)
