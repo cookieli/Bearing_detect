@@ -6,6 +6,7 @@ import autoencoder as ae
 
 X = tf.placeholder("float", [None, ae.num_input])
 is_training = tf.placeholder(tf.bool)
+learning_rate = 0.01
 
 layer_shape = {
     'layer_1': {
@@ -67,16 +68,19 @@ def autoencoder(x, layer_name, e_kernel_shape, e_bias_shape, d_kernel_shape, d_b
         decoder_out = encoder(encoder_norm, d_kernel_shape, d_kernel_shape, train)
         return (encoder_norm, decoder_out)
 def Autoencoder(x, layer_name, train = False):
-    x_norm = tf.layers_batch_normalization(x, center = True, scale = True, training = train)
+    x_norm = tf.layers.batch_normalization(x, center = True, scale = True, training = train)
     encoder_out = Encoder(x_norm, layer_name, train)
-    decoder_out = Decoder(encoder_out, layer_name, train)
+    encoder_norm = tf.layers.batch_normalization(encoder_out, center = True, scale = True, training = train)
+    decoder_out = Decoder(encoder_norm, layer_name, train)
     return decoder_out
 
 
 def layer_para(x, layer_name, train = False):
     dic ={}
     dic['y_true'] = x
+    y_true = dic['y_true']
     dic['y_pred'] = Autoencoder(x, layer_name, train)
+    y_pred = dic['y_pred']
     dic['loss'] = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
     dic['optimizer'] = tf.train.RMSProbOptimizer(learning_rate).minimize(loss)
     return dic

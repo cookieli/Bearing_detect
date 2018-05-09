@@ -36,7 +36,7 @@ def encoder(x, kernel_shape, bias_shape, train = False):
                          bias))
     return out
 
-def Encoder(x, layer_name, train = False, need_reuse = False):
+def Encoder(x, layer_name, train = False, need_reuse = True):
     with tf.variable_scope(layer_name):
         if need_reuse:
             scope.reuse_variables()
@@ -53,8 +53,10 @@ def decoder(x, kernel_shape, bias_shape, train = False):
     out = tf.tanh(tf.add(tf.matmul(x, weights),
                          bias))
     return out
-def Decoder(x, layer_name, train = False):
+def Decoder(x, layer_name, train = False, need_reuse = True):
     with tf.variable_scope(layer_name):
+        if need_reuse:
+            scope.reuse_variables()
         return decoder(x,
                        layer_shape[layer_name]['decoder']['weights'],
                        layer_shape[layer_name]['decoder']['bias'],
