@@ -4,9 +4,9 @@ import tensorflow as tf
 import numpy as np
 import autoencoder as ae
 
-#X = tf.placeholder(dtype = tf.float32, shape =[None, ae.num_input])
-#is_training = tf.placeholder(tf.bool)
-learning_rate = 0.01
+# = tf.placeholder(dtype = tf.float32, shape =[None, ae.num_input])
+#s_training = tf.placeholder(tf.bool)
+#learning_rate = 0.01
 
 layer_shape = {
     'layer_1': {
@@ -75,22 +75,24 @@ def Autoencoder(x, layer_name, train = False):
     return decoder_out
 
 
-def layer_para(x, layer_name, train = False):
+def layer_para(x, layer_name, train = False, learning_rate = 0.01):
     dic ={}
     dic['y_true'] = x
     y_true = dic['y_true']
     dic['y_pred'] = Autoencoder(x, layer_name, train)
     y_pred = dic['y_pred']
     with tf.variable_scope(layer_name, reuse = tf.AUTO_REUSE):
-        with tf.variable_scope('layer_para'):
             dic['loss'] = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
             loss = dic['loss']
-            dic['optimizer'] = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
+            if layer_name is 'layer_1':
+                dic['optimizer'] = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+            else:
+                dic['optimizer'] = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
     return dic
 
-#layer_1_para = layer_para(X, scope_name[0], is_training)
+#ayer_1_para = layer_para(X, scope_name[0], is_training)
 
-#layer_2_para = layer_para(x = Encoder(X, scope_name[0], False, True), layer_name = scope_name[1], train = is_training)
+#ayer_2_para = layer_para(x = Encoder(X, scope_name[0], False, True), layer_name = scope_name[1], train = is_training)
 
-#layer_3_para = layer_para(x = Encoder(X, scope_name[1], False, True), layer_name = scope_name[2], train = is_training)
+#ayer_3_para = layer_para(x = Encoder(Encoder(X, scope_name[0], False, True), scope_name[1], False, True), layer_name = scope_name[2], train = is_training)
 

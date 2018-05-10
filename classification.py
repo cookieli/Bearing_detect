@@ -1,5 +1,5 @@
 from __future__ import division, print_function, absolute_import
-from autoencoder import mnist, num_hidden_1, num_hidden_2, num_hidden_3, num_input,features, encoder, weights
+from autoencoder import mnist, num_hidden_1, num_hidden_2, num_hidden_3, num_input, encoder, weights
 import tensorflow as tf
 import numpy as np
 import math
@@ -17,11 +17,11 @@ def classification_model(X, drop_out_prob = 0.8):
     prediction = tf.nn.softmax(scores)
     return prediction
 
-out = classification_model(X, drop_out_prob)
+#out = classification_model(X, drop_out_prob)
 
-loss = tf.reduce_mean(-tf.reduce_sum(tf.cast(y,tf.float32)*tf.log(out),axis = 1)) + 0.4 * tf.reduce_sum(tf.multiply(W1, W1))
-optimizer = tf.train.AdamOptimizer(5e-4)
-train_step = optimizer.minimize(loss)
+#loss = tf.reduce_mean(-tf.reduce_sum(tf.cast(y,tf.float32)*tf.log(out),axis = 1)) + 0.4 * tf.reduce_sum(tf.multiply(W1, W1))
+#optimizer = tf.train.AdamOptimizer(5e-4)
+#train_step = optimizer.minimize(loss)
 
 
 train_data = mnist.train.images
@@ -34,6 +34,7 @@ def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8,
               training = None, plot_losses=False):
     correct_prediction = tf.equal(tf.argmax(predict, 1),tf.argmax(y,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
 
     #shuffle indices
     train_indices = np.arange(Xd.shape[0])
@@ -80,6 +81,5 @@ def run_model(session, predict, loss_val, Xd, yd,drop_prob = 0.8,
             plt.ylabel('minibatch loss')
             plt.show()
     return total_loss, total_correct
-
 
 

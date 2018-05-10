@@ -19,10 +19,10 @@ examples_to_show = 10
 
 #Network Parameters
 
-num_hidden_1 = 512
-num_hidden_2 = 256
-num_hidden_3 = 128
-num_input = 784
+num_hidden_1 = 256
+num_hidden_2 = 128
+num_hidden_3 = 64
+num_input = 1200
 
 #X = tf.placeholder(dtype = tf.float32, shape = [None, num_input], name = "auto")
 #is_training = tf.placeholder(tf.bool)
@@ -94,15 +94,15 @@ def autoencoder(x, train = False, drop_prob = 0.4):
     encoder_op = encoder(x,train, drop_prob)
     decoder_op = decoder(encoder_op,train, drop_prob)
     return decoder_op, encoder_op
-y_true = X
-y_pred, features = autoencoder(X, is_training, drop_out_prob)
-loss = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
-optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
+#y_true = X
+#y_pred, features = autoencoder(X, is_training, drop_out_prob)
+#loss = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
+#optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
 
 def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4,
                     num_steps = 40, batch_size=256, print_every = 100,
                     training = None, plot_losses = False):
-    correct_prediction = y_true - y_pred
+    correct_prediction = 1.111
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
@@ -125,7 +125,7 @@ def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4,
         correct += np.sum(corr)
 
         if (iter_cnt%print_every) == 0:
-            print("Iteration{0}: with minibatch training loss = {1:.3g} and accuracy of {2:.2g}".format(iter_cnt, loss, np.sum(corr)))
+            print("Iteration{0}: with minibatch training loss = {1:.3g}".format(iter_cnt, loss))
         iter_cnt += 1
     total_loss = np.sum(losses)/Xd.shape[0]
     print("Overall loss = {0:.3g} ".format(total_loss))
