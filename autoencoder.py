@@ -111,7 +111,7 @@ def run_autoencoder(session, loss_val, Xd, predict,drop_prob = 0.4,
     np.random.shuffle(train_indices)
 
     variables = [loss_val, correct_prediction, training, extra_update_ops]
-   
+  
     iter_cnt = 0
     correct = 0
     losses = []

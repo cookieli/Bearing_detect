@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 num_classes = 10
 
-W1 = tf.get_variable('W1', shape = [num_hidden_3, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer(stddev = 0.1))
+W1 = tf.get_variable('W1', shape = [num_hidden_4, num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer(stddev = 0.1))
 b1 = tf.get_variable('b1', shape = [num_classes], dtype = tf.float32, initializer = tf.random_normal_initializer)
 
 X = tf.placeholder(tf.float32, [None, num_input], "dcf")
@@ -27,7 +27,10 @@ def classification_model(x, drop_out_prob = 1.0, train = False):
     layer_3 = Encoder(layer_2_drop, scope_name[2], need_reuse = True)
     layer_3_norm = tf.layers.batch_normalization(layer_3, center = True, scale = True, training = train)
     layer_3_drop = tf.nn.dropout(layer_3_norm, keep_prob = drop_out_prob)
-    scores = tf.add(tf.matmul(layer_3_drop, W1), b1)
+    layer_4 = Encoder(layer_3_drop, scope_name[3], need_reuse = True)
+    layer_4_norm = tf.layers.batch_normalization(layer_3, center = True, scale = True, training = train)
+    layer_4_drop = tf.nn.dropout(layer_4_norm, keep_prob = drop_out_prob)
+    scores = tf.add(tf.matmul(layer_4_drop, W1), b1)
     prediction = tf.nn.softmax(scores)
     return prediction
 
