@@ -20,10 +20,14 @@ layer_shape = {
     'layer_3': {
         'encoder': {'weights': [ae.num_hidden_2, ae.num_hidden_3], 'bias': [ae.num_hidden_3]},
         'decoder': {'weights': [ae.num_hidden_3, ae.num_hidden_2], 'bias': [ae.num_hidden_2]},
+    },
+    'layer_4': {
+        'encoder': {'weights': [ae.num_hidden_3, ae.num_hidden_4], 'bias': [ae.num_hidden_4]},
+        'decoder': {'weights': [ae.num_hidden_4, ae.num_hidden_3], 'bias': [ae.num_hidden_3]}
     }
 }
 
-scope_name = ['layer_1', 'layer_2', 'layer_3']
+scope_name = ['layer_1', 'layer_2', 'layer_3', 'layer_4']
 def encoder(x, kernel_shape, bias_shape, train = False):
     # create weights
     weights = tf.get_variable("weights", kernel_shape,

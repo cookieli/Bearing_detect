@@ -22,6 +22,7 @@ examples_to_show = 10
 num_hidden_1 = 256
 num_hidden_2 = 128
 num_hidden_3 = 64
+num_hidden_4 = 16
 num_input = 1200
 
 #X = tf.placeholder(dtype = tf.float32, shape = [None, num_input], name = "auto")
