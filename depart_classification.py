@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from autoencoder import num_hidden_3, num_input
+from autoencoder import num_hidden_3, num_hidden_4, num_input
 from autoencoder_depart import Encoder, scope_name
 import math
 import matplotlib.pyplot as plt
@@ -28,7 +28,7 @@ def classification_model(x, drop_out_prob = 1.0, train = False):
     layer_3_norm = tf.layers.batch_normalization(layer_3, center = True, scale = True, training = train)
     layer_3_drop = tf.nn.dropout(layer_3_norm, keep_prob = drop_out_prob)
     layer_4 = Encoder(layer_3_drop, scope_name[3], need_reuse = True)
-    layer_4_norm = tf.layers.batch_normalization(layer_3, center = True, scale = True, training = train)
+    layer_4_norm = tf.layers.batch_normalization(layer_4, center = True, scale = True, training = train)
     layer_4_drop = tf.nn.dropout(layer_4_norm, keep_prob = drop_out_prob)
     scores = tf.add(tf.matmul(layer_4_drop, W1), b1)
     prediction = tf.nn.softmax(scores)

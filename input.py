@@ -31,18 +31,20 @@ class Bearing_dataset:
                        7:'Ball_0.028',
                        8:'Outer_Race_0.007',
                        9:'Outer_Race_0.021'}
-  
+        
         self.data_with_labels = self._match_label_data()
         self.data_label_lst = self._construct_list()
         random.shuffle(self.data_label_lst)
         self.data_lst, self.label_lst = self._depart_data_label()
         self.data_matrix = self._construct_data_matrix()
         self.matrix_normalization()
-        self.train_data = self.data_matrix[: 800, :]
-        self.eval_data = self.data_matrix[800 : , :]
-        self.train_label = self.label_lst[: 800]
-        self.eval_label = self.label_lst[800 : ]
+        self.train_data = self.data_matrix[: 7000, :]
+        self.eval_data = self.data_matrix[7000 : , :]
+        self.train_label = self.label_lst[: 7000]
+        self.eval_label = self.label_lst[7000 : ]
     def _match_label_data(self):
+        final = 1000
+        step = 1200 
         dic = {}
         for n, s in list(self.labels.items()):
             dic[n] = sio.loadmat(data_path.get(s))
@@ -50,8 +52,14 @@ class Bearing_dataset:
                 if key.endswith('DE_time'):
                     dic[n] = dic[n].get(key)
                     dic[n] = np.transpose(self._truncate(dic[n]))
-                    np.random.shuffle(dic[n])
-                    dic[n] = np.split(dic[n], 100, axis = 1)
+                    sub_lst = []
+                    for i in range(final):
+                        scale = random.randint(1, 100)
+                        t = i * scale
+                        sub_lst.append(dic[n][:,t:t+step])
+                    dic[n] = sub_lst
+                    random.shuffle(dic[n])
+                   # dic[n] = np.split(dic[n], 100, axis = 1)
                    # for elem in dic[n]:
                     #    elem = np.transpose(elem)
         return dic

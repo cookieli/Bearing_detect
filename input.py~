@@ -31,12 +31,13 @@ class Bearing_dataset:
                        7:'Ball_0.028',
                        8:'Outer_Race_0.007',
                        9:'Outer_Race_0.021'}
-    
+  
         self.data_with_labels = self._match_label_data()
         self.data_label_lst = self._construct_list()
         random.shuffle(self.data_label_lst)
         self.data_lst, self.label_lst = self._depart_data_label()
         self.data_matrix = self._construct_data_matrix()
+        self.matrix_normalization()
         self.train_data = self.data_matrix[: 800, :]
         self.eval_data = self.data_matrix[800 : , :]
         self.train_label = self.label_lst[: 800]
@@ -49,6 +50,7 @@ class Bearing_dataset:
                 if key.endswith('DE_time'):
                     dic[n] = dic[n].get(key)
                     dic[n] = np.transpose(self._truncate(dic[n]))
+                    np.random.shuffle(dic[n])
                     dic[n] = np.split(dic[n], 100, axis = 1)
                    # for elem in dic[n]:
                     #    elem = np.transpose(elem)
@@ -75,7 +77,10 @@ class Bearing_dataset:
             elem = np.concatenate((elem, self.data_lst[i]), axis = 0)
         return elem
 
-    
+    def matrix_normalization(self):
+        data_mean = self.data_matrix.mean(axis = 0)
+        self.data_matrix -= data_mean
+        self.data_matrix /= np.std(self.data_matrix, axis = 0)
 
 #  def _construct_list(self):
 #      lst = []
