@@ -12,8 +12,8 @@ b1 = tf.get_variable('b1', shape = [num_classes], dtype = tf.float32, initialize
 
 X = tf.placeholder(tf.float32, [None, num_input], "dcf")
 y = tf.placeholder(tf.int64, [None, num_classes], "labels")
-drop_out_prob = tf.placeholder(tf.float32)
-#training_para = tf.placeholder(tf.bool)
+drop_out = tf.placeholder(tf.float32, name = "droping")
+#training = tf.placeholder(tf.bool, name = "training")
 
 
 def classification_model(x, drop_out_prob = 1.0, train = False):
@@ -33,34 +33,37 @@ def classification_model(x, drop_out_prob = 1.0, train = False):
     scores = tf.add(tf.matmul(layer_4_drop, W1), b1)
     prediction = tf.nn.softmax(scores)
     return prediction
-
-out = classification_model(X, drop_out_prob)
+#with tf.name_scope(" softmax scores"):
+out = classification_model(X, drop_out)
 #0/7
-loss = tf.reduce_mean(-tf.reduce_sum(tf.cast(y, tf.float32) * tf.log(out), axis = 1)) +  7.0 * tf.reduce_mean(tf.multiply(W1, W1))
-
-optimizer = tf.train.AdamOptimizer(7e-3)
+with tf.name_scope("loss"):
+    loss = tf.reduce_mean(-tf.reduce_sum(tf.cast(y, tf.float32) * tf.log(out), axis = 1)) 
+    #loss = tf.losses.softmax_cross_entropy(y, out)
+optimizer = tf.train.AdamOptimizer(1.8e-3)
 
 train_step = optimizer.minimize(loss)
 
 
-def run_model(session, predict, loss_val, Xd, yd,drop_prob = 1,
+def run_model(session, predict, loss_val, Xd, yd, drop_prob = 1.0,
               epochs=1, batch_size=256, print_every = 100,
               training = None, plot_losses=False):
     correct_prediction = tf.equal(tf.argmax(predict, 1),tf.argmax(y,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
+   # extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     #shuffle indices
     train_indices = np.arange(Xd.shape[0])
     np.random.shuffle(train_indices)
 
     training_now = training is not None
 
-    variables = [loss_val, correct_prediction, accuracy]
+    variables = [loss_val, correct_prediction,  accuracy]
     if training_now:
         variables[-1] = training
 
     #counter
     iter_cnt = 0
+    total_losses = []
+    total_accs = []
     for e in range(epochs):
         correct = 0
         losses = []
@@ -71,11 +74,11 @@ def run_model(session, predict, loss_val, Xd, yd,drop_prob = 1,
 
             feed_dict = {
                 X:Xd[idx, :],
-                y:yd[idx],
-                drop_out_prob: drop_prob
-            }
+                y: yd[idx],
+                drop_out: drop_prob,
+               }
             actual_batch_size = yd[idx].shape[0]
-            loss, corr, _ = session.run(variables, feed_dict=feed_dict)
+            loss, corr,_= session.run(variables, feed_dict=feed_dict)
 
             losses.append(loss*actual_batch_size)
             correct += np.sum(corr)
@@ -85,14 +88,16 @@ def run_model(session, predict, loss_val, Xd, yd,drop_prob = 1,
             iter_cnt += 1
         total_correct = correct/Xd.shape[0]
         total_loss = np.sum(losses)/Xd.shape[0]
+        total_losses.append(total_loss)
+        total_accs.append(total_correct)
         print("Epoch {2}, Overall loss = {0:.3g} and accuracy of {1:.3g}".format(total_loss, total_correct, e+1))
-        if plot_losses:
-            plt.plot(losses)
-            plt.grid(True)
-            plt.title('Epoch {} Loss'.format(e+1))
-            plt.xlabel('minibatch number')
-            plt.ylabel('minibatch loss')
-            plt.show()
+    if plot_losses:
+        plt.plot(total_accs)
+        plt.grid(True)
+        plt.title('Epoch {} accuracy'.format(e+1))
+        plt.xlabel('minibatch number')
+        plt.ylabel('minibatch accuracy')
+        plt.show()
     return total_loss, total_correct
 
 
